@@ -13,7 +13,7 @@ As for now, you can call out the following birds
 - B : Bluebird
 - C : Cardinal
 
-Most of the birds could be found in the forest, although they are unnamed. Some birds might not terminate
+Most of the birds could be found in the forest, although they are unnamed. Some birds might not terminate, for example, the Y-combinator bird `(S(CB(SII))(CB(SII)))`.
 
 The REPL can only parse Birds but not Lambda Expression (at the moment)
 
@@ -45,3 +45,7 @@ All library files are in `/src/`, tests are in `/test/` and repl is in `/app/`
 - (re)sugar map back the expression to its name 
   - ie. map `λx.x` or `λ0` to `I`
   - ie. map `λxy.x` or `λλ0` to `K`
+
+
+## Reference
+[birds list](https://www.angelfire.com/tx4/cus/combinator/birds.html)

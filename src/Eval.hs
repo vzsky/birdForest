@@ -1,8 +1,7 @@
 module Eval
   ( eval
   , interp
-  , desugarize
-  , sugarize ) where
+  , desugarize ) where
 
 import Expr
 
@@ -49,19 +48,6 @@ addVar :: Int -> Expr -> Expr
 addVar = apply . f where 
   f a (Var n) = Var (n+a)
   f a e       = e
-
-sugarize :: Expr -> Expr
-sugarize (Lamd n e) 
-  | n == 1 && e == (Var 0)                                              = I
-  | n == 2 && e == (Var 0)                                              = K
-  | n == 3 && e == (list2app [(Var 0), (Var 2), (App (Var 1) (Var 2))]) = S
-  | n == 3 && e == (App (Var 0) (App (Var 1) (Var 2)))                  = B
-  | n == 3 && e == (App (App (Var 0) (Var 2)) (Var 1))                  = C
-
-sugarize (Lamd 1 e) = joinLamd 1 $ ((addVar 1) . sugarize . (addVar (-1))) e
-sugarize (Lamd n e) = joinLamd 1 $ ((addVar 1) . sugarize . (addVar (-1))) (Lamd (n-1) e)
-sugarize (App e1 e2) = App (sugarize e1) (sugarize e2)
-sugarize e = e
 
 eval :: Expr -> Expr
 eval = interp . desugarize
