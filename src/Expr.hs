@@ -11,7 +11,7 @@ data Expr
   | B | C
   | I | K | S
   | Var Int
-  | Cont Int Expr
+  | Lamd Int Expr
   | Gen Int
   deriving (Eq)
 
@@ -19,7 +19,7 @@ instance Show Expr where
   show (App e1 e2) = "("++(show e1)++(show e2)++")"
   show (Var n) = "[" ++ show n ++ "]"
   show (Gen n) = "<" ++ show n ++ ">"
-  show (Cont n e)  = "{λ" ++ show n ++ show e ++ "}"
+  show (Lamd n e)  = "{λ" ++ show n ++ show e ++ "}"
   show I = "I"
   show K = "K"
   show S = "S"
@@ -29,7 +29,7 @@ instance Show Expr where
 
 apply :: (Expr -> Expr) -> Expr -> Expr
 apply f (App e1 e2) = App (apply f e1) (apply f e2)
-apply f (Cont lv e) = Cont lv (apply f e)
+apply f (Lamd lv e) = Lamd lv (apply f e)
 apply f e           = f e
 
 list2app :: [Expr] -> Expr
