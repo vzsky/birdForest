@@ -1,0 +1,76 @@
+cabal-version:      2.4
+name:               birdForest
+version:            0.1.0.0
+
+-- A short (one-line) description of the package.
+-- synopsis:
+
+-- A longer description of the package.
+-- description:
+
+-- A URL where users can report bugs.
+-- bug-reports:
+
+-- The license under which the package is released.
+-- license:
+author:             vzsky
+maintainer:         my999n@gmail.com
+
+-- A copyright notice.
+-- copyright:
+-- category:
+extra-source-files: CHANGELOG.md
+
+library
+    exposed-modules:  MyLib
+
+    -- Modules included in this library but not exported.
+    other-modules: Expr, Parser, Eval
+
+    -- LANGUAGE extensions used by modules in this package.
+    -- other-extensions: 
+    build-depends:    
+        base ^>=4.16.4.0,
+        parsec
+    hs-source-dirs:   src
+    default-language: Haskell2010
+
+executable birdForest
+    main-is:          Main.hs
+
+    -- Modules included in this executable, other than Main.
+    -- other-modules:
+
+    -- LANGUAGE extensions used by modules in this package.
+    -- other-extensions: 
+    build-depends:
+        base ^>=4.16.4.0,
+        birdForest,
+        parsec
+
+    hs-source-dirs:   app
+    default-language: Haskell2010
+
+test-suite birdForest-test
+
+    -- Modules included in this executable, other than Main.
+    -- other-modules:
+
+    -- LANGUAGE extensions used by modules in this package.
+    -- other-extensions: 
+    default-language: Haskell2010
+
+    -- The interface type and version of the test suite.
+    type:             exitcode-stdio-1.0
+
+    -- Directories containing source files.
+    hs-source-dirs:   test
+
+    -- The entrypoint to the test suite.
+    main-is:          Main.hs
+
+    -- Test dependencies.
+    build-depends:
+        base ^>=4.16.4.0,
+        birdForest,
+        hspec
