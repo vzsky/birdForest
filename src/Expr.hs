@@ -8,8 +8,8 @@ module Expr
 
 data Expr 
   = App Expr Expr
-  | B | C
-  | I | K | S
+  | I | B | C
+  | K | S
   | Var Int
   | Lamd Int Expr
   | Gen Int
@@ -20,11 +20,8 @@ instance Show Expr where
   show (Var n) = "[" ++ show n ++ "]"
   show (Gen n) = "<" ++ show n ++ ">"
   show (Lamd n e)  = "{λ" ++ show n ++ show e ++ "}"
-  show I = "I"
   show K = "K"
   show S = "S"
-  show B = "B"
-  show C = "C"
 
 
 apply :: (Expr -> Expr) -> Expr -> Expr

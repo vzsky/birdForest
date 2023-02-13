@@ -7,47 +7,42 @@ import Expr
 
 (...) = (.)(.)(.)
 
-substitute :: Int -> Expr -> Expr -> Expr 
-substitute = apply ... f where 
-  f c x (Var m) | (c == m) = x
-                | (c < m)  = Var (m-1)
-  f c x e = e
+substitute :: Expr -> Expr -> Expr
+substitute = subst 0 
+  where 
+    subst l x (App e1 e2)        = App (subst l x e1) (subst l x e2)
+    subst l x (Lamd n e)         = Lamd n (subst (l+n) (add n x) e)
+    subst l x (Var m) | (l == m) = x
+                          | (l < m)  = (Var (m-1))
+    subst l x e                  = e
 
-appLamd :: Int -> Int -> Expr -> Expr
-appLamd = apply ... f where 
-  f a c (Var n) | (c <= n) = Var (n+a)
-  f a c e                  = e
+add :: Int -> Expr -> Expr
+add n (App e1 e2) = App (add n e1) (add n e2)
+add n (Var m)     = Var (m+n)
+add n e           = e
 
 joinLamd :: Int -> Expr -> Expr
+joinLamd 0 e          = e
 joinLamd n (Lamd l e) = (Lamd (n+l) e)
 joinLamd n e          = (Lamd n     e)
 
 interp :: Expr -> Expr
-interp = intrp 0 
-  where
-    intrp l I = joinLamd 1 (Var l)
-    intrp l K = joinLamd 2 (Var l)
-    intrp l S = joinLamd 3 (App (App (Var l) (Var (l+2))) (App (Var (l+1)) (Var (l+2))))
+interp K = Lamd 2 (Var 1)
+interp S = Lamd 3 (App (App (Var 2) (Var 0)) (App (Var 1) (Var 0)))
 
-    intrp l (App f x) = case intrp l f of 
-      Lamd 1 e -> intrp l $ (substitute l x e)
-      Lamd n e -> intrp l $ joinLamd (n-1) $ (substitute l (appLamd (n-1) l x) e)
-      e        -> (App e $ intrp l x)
+interp (App f x) = case interp f of 
+  Lamd n e -> interp $ substitute x (joinLamd (n-1) e)
+  e        -> (App e $ interp x)
 
-    intrp l (Lamd lv e) = (joinLamd lv (intrp (l+lv) e))
-    intrp l x = x
-
+interp (Lamd lv e) = (joinLamd lv (interp e))
+interp x = x
 
 desugarize :: Expr -> Expr
 desugarize = apply f where 
+  f I = list2app [S, K, K]
   f B = list2app [S, App K S, K]
   f C = desugarize $ list2app [S, list2app [B, B, S], list2app [K, K]]
   f e = e
-
-addVar :: Int -> Expr -> Expr
-addVar = apply . f where 
-  f a (Var n) = Var (n+a)
-  f a e       = e
 
 eval :: Expr -> Expr
 eval = interp . desugarize
