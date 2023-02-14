@@ -18,5 +18,5 @@ read' = putStr "> "
 
 eval' :: String -> String
 eval' s = case evaluate s of 
-  Nothing -> "parse error" 
-  Just s  -> enclyclopedia s
+  Left  s -> s
+  Right s -> enclyclopedia s

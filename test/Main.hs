@@ -13,11 +13,11 @@ main = hspec $ do
       parseBird "S" `shouldBe` Right (S)
 
     it "parses Maybe" $ do
-      tryParse "(S)"         `shouldBe` Just (S)
-      tryParse "(((KI)))"    `shouldBe` Just (App K I)
-      tryParse "(K(III)K)"   `shouldBe` Just (App (App K (App (App I I) I)) K)
-      tryParse "(K(IK)(KI))" `shouldBe` Just (App (App K (App I K)) (App K I))
-      tryParse "SK(SK)I"     `shouldBe` Just (App (App (App S K) (App S K)) I)
+      tryParse "(S)"         `shouldBe` Right (S)
+      tryParse "(((KI)))"    `shouldBe` Right (App K I)
+      tryParse "(K(III)K)"   `shouldBe` Right (App (App K (App (App I I) I)) K)
+      tryParse "(K(IK)(KI))" `shouldBe` Right (App (App K (App I K)) (App K I))
+      tryParse "SK(SK)I"     `shouldBe` Right (App (App (App S K) (App S K)) I)
 
   describe "interp" $ do
       
@@ -38,27 +38,27 @@ main = hspec $ do
 
   describe "desugar" $ do
     it "should be correct" $ do
-      desugarize <$> tryParse "I" `shouldBe` Just (App (App S K) K)
-      desugarize <$> tryParse "B" `shouldBe` Just (App (App S (App K S)) K)
+      desugarize <$> tryParse "I" `shouldBe` Right (App (App S K) K)
+      desugarize <$> tryParse "B" `shouldBe` Right (App (App S (App K S)) K)
 
   describe "evaluate" $ do
     it "evaluates SKI correctly" $ do
-      evaluate "SKSK"   `shouldBe` Just (Lamd 2 (Var 1))
-      evaluate "SSKI"   `shouldBe` Just (Lamd 1 (App (Var 0) (Lamd 1 (Var 0))))
-      evaluate "SISKII" `shouldBe` Just (Lamd 1 (Var 0))
-      evaluate "SKK"    `shouldBe` Just (Lamd 1 (Var 0))
-      evaluate "S(KS)K" `shouldBe` Just (Lamd 3 (App (Var 2) (App (Var 1) (Var 0))))
-      evaluate "S(SK)"  `shouldBe` Just (Lamd 2 (App (Var 1) (Var 0)))
-      evaluate "SII"    `shouldBe` Just (Lamd 1 (App (Var 0) (Var 0)))
-      evaluate "SI"     `shouldBe` Just (Lamd 2 (App (Var 0) (App (Var 1) (Var 0))))
-      evaluate "KI"     `shouldBe` Just (Lamd 2 (Var 0))
-      evaluate "SK"     `shouldBe` Just (Lamd 2 (Var 0))
+      evaluate "SKSK"   `shouldBe` Right (Lamd 2 (Var 1))
+      evaluate "SSKI"   `shouldBe` Right (Lamd 1 (App (Var 0) (Lamd 1 (Var 0))))
+      evaluate "SISKII" `shouldBe` Right (Lamd 1 (Var 0))
+      evaluate "SKK"    `shouldBe` Right (Lamd 1 (Var 0))
+      evaluate "S(KS)K" `shouldBe` Right (Lamd 3 (App (Var 2) (App (Var 1) (Var 0))))
+      evaluate "S(SK)"  `shouldBe` Right (Lamd 2 (App (Var 1) (Var 0)))
+      evaluate "SII"    `shouldBe` Right (Lamd 1 (App (Var 0) (Var 0)))
+      evaluate "SI"     `shouldBe` Right (Lamd 2 (App (Var 0) (App (Var 1) (Var 0))))
+      evaluate "KI"     `shouldBe` Right (Lamd 2 (Var 0))
+      evaluate "SK"     `shouldBe` Right (Lamd 2 (Var 0))
 
     it "evaluate B correctly" $ do
-      evaluate "BBB"        `shouldBe` Just (Lamd 4 (App (Var 3) (list2app [(Var 2), (Var 1), (Var 0)])))
-      evaluate "S(BBS)(KK)" `shouldBe` Just (Lamd 3 $ list2app [(Var 2), (Var 0), (Var 1)])
+      evaluate "BBB"        `shouldBe` Right (Lamd 4 (App (Var 3) (list2app [(Var 2), (Var 1), (Var 0)])))
+      evaluate "S(BBS)(KK)" `shouldBe` Right (Lamd 3 $ list2app [(Var 2), (Var 0), (Var 1)])
     
     it "evaluate C correctly" $ do
-      evaluate "C"          `shouldBe` Just (Lamd 3 $ list2app [(Var 2), (Var 0), (Var 1)])
-      evaluate "CB(SII)"    `shouldBe` Just (Lamd 2 $ App (Var 1) (App (Var 0) (Var 0)))
-      evaluate "CI"         `shouldBe` Just (Lamd 2 $ App (Var 0) (Var 1))
+      evaluate "C"          `shouldBe` Right (Lamd 3 $ list2app [(Var 2), (Var 0), (Var 1)])
+      evaluate "CB(SII)"    `shouldBe` Right (Lamd 2 $ App (Var 1) (App (Var 0) (Var 0)))
+      evaluate "CI"         `shouldBe` Right (Lamd 2 $ App (Var 0) (Var 1))

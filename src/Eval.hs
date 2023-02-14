@@ -1,7 +1,5 @@
 module Eval
-  ( eval
-  , interp
-  , desugarize ) where
+  ( interp ) where
 
 import Expr
 
@@ -36,13 +34,3 @@ interp (App f x) = case interp f of
 
 interp (Lamd lv e) = (joinLamd lv (interp e))
 interp x = x
-
-desugarize :: Expr -> Expr
-desugarize = apply f where 
-  f I = list2app [S, K, K]
-  f B = list2app [S, App K S, K]
-  f C = desugarize $ list2app [S, list2app [B, B, S], list2app [K, K]]
-  f e = e
-
-eval :: Expr -> Expr
-eval = interp . desugarize
