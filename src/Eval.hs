@@ -1,5 +1,5 @@
 module Eval
-  ( interp, joinLamd, substitute ) where
+  ( interp, substitute ) where
 
 import Expr
 
@@ -16,11 +16,6 @@ add :: Int -> Expr -> Expr
 add n (App e1 e2) = App (add n e1) (add n e2)
 add n (Var m)     = Var (m+n)
 add n e           = e
-
-joinLamd :: Int -> Expr -> Expr
-joinLamd 0 e          = e
-joinLamd n (Lamd l e) = (Lamd (n+l) e)
-joinLamd n e          = (Lamd n     e)
 
 interp :: Expr -> Result
 interp K = Right $ Lamd 2 (Var 1)

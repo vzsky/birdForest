@@ -45,5 +45,5 @@ search e
 
 evaluate :: String -> Result
 evaluate s = do 
-  p <- tryParse s 
+  p <- parseExpr s 
   interp p

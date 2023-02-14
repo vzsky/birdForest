@@ -7,16 +7,13 @@ main :: IO ()
 main = hspec $ do
 
   describe "parser" $ do
-    it "parses Bird" $ do
-      parseBird "K" `shouldBe` Right (K)
-      parseBird "S" `shouldBe` Right (S)
 
     it "parses Expr" $ do
-      tryParse "(S)"         `shouldBe` Right (S)
-      tryParse "(((KS)))"    `shouldBe` Right (App K S)
-      tryParse "(K(SKS)K)"   `shouldBe` Right (App (App K (App (App S K) S)) K)
-      tryParse "(K(SK)(KS))" `shouldBe` Right (App (App K (App S K)) (App K S))
-      tryParse "SK(SK)S"     `shouldBe` Right (App (App (App S K) (App S K)) S)
+      parseExpr "(S)"         `shouldBe` (unnest . Nest) [S]
+      parseExpr "(((KS)))"    `shouldBe` (unnest . Nest) [K, S]
+      parseExpr "(K(SKS)K)"   `shouldBe` (unnest . Nest) [K, Nest [S, K, S], K]
+      parseExpr "(K(SK)(KS))" `shouldBe` (unnest . Nest) [K, Nest [S, K], Nest [K, S]]
+      parseExpr "SK(SK)S"     `shouldBe` (unnest . Nest) [S, K, Nest [S, K], S]
 
   describe "interp" $ do
       
