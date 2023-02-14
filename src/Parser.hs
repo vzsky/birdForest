@@ -19,8 +19,6 @@ expr :: Parsec String () Expr
 expr = bird <|> list2app <$> (char '(' *> many expr <* char ')')
 parseExpr = makeParser expr
 
-
-
 tryParse :: String -> Maybe Expr
 tryParse x = case parseExpr ("(" ++ x ++ ")") of
   Left  a -> Nothing
