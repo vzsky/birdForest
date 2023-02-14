@@ -30,29 +30,25 @@ main = hspec $ do
       interp (App (App (App S K) (Gen 1)) (Gen 2))        `shouldBe` Right (Gen 2)
       interp (App (App (App S (Gen 0)) (Gen 1)) (Gen 2))  `shouldBe` Right (App (App (Gen 0) (Gen 2)) (App (Gen 1) (Gen 2)))
 
-  -- describe "desugar" $ do
-  --   it "should be correct" $ do
-  --     desugarize <$> tryParse "I" `shouldBe` Right (App (App S K) K)
-  --     desugarize <$> tryParse "B" `shouldBe` Right (App (App S (App K S)) K)
+  describe "evaluate" $ do
+    it "evaluates SKI correctly" $ do
+      evaluate "SKSK"   `shouldBe` Right (Lamd 2 (Var 1))
+      evaluate "SSKI"   `shouldBe` Right (Lamd 1 (App (Var 0) (Lamd 1 (Var 0))))
+      evaluate "SISKII" `shouldBe` Right (Lamd 1 (Var 0))
+      evaluate "SKK"    `shouldBe` Right (Lamd 1 (Var 0))
+      evaluate "S(KS)K" `shouldBe` Right (Lamd 3 (App (Var 2) (App (Var 1) (Var 0))))
+      evaluate "S(SK)"  `shouldBe` Right (Lamd 2 (App (Var 1) (Var 0)))
+      evaluate "SII"    `shouldBe` Right (Lamd 1 (App (Var 0) (Var 0)))
+      evaluate "SI"     `shouldBe` Right (Lamd 2 (App (Var 0) (App (Var 1) (Var 0))))
+      evaluate "KI"     `shouldBe` Right (Lamd 2 (Var 0))
+      evaluate "SK"     `shouldBe` Right (Lamd 2 (Var 0))
 
-  -- describe "evaluate" $ do
-  --   it "evaluates SKI correctly" $ do
-  --     evaluate "SKSK"   `shouldBe` Right (Lamd 2 (Var 1))
-  --     evaluate "SSKI"   `shouldBe` Right (Lamd 1 (App (Var 0) (Lamd 1 (Var 0))))
-  --     evaluate "SISKII" `shouldBe` Right (Lamd 1 (Var 0))
-  --     evaluate "SKK"    `shouldBe` Right (Lamd 1 (Var 0))
-  --     evaluate "S(KS)K" `shouldBe` Right (Lamd 3 (App (Var 2) (App (Var 1) (Var 0))))
-  --     evaluate "S(SK)"  `shouldBe` Right (Lamd 2 (App (Var 1) (Var 0)))
-  --     evaluate "SII"    `shouldBe` Right (Lamd 1 (App (Var 0) (Var 0)))
-  --     evaluate "SI"     `shouldBe` Right (Lamd 2 (App (Var 0) (App (Var 1) (Var 0))))
-  --     evaluate "KI"     `shouldBe` Right (Lamd 2 (Var 0))
-  --     evaluate "SK"     `shouldBe` Right (Lamd 2 (Var 0))
+    it "evaluate B correctly" $ do
 
-  --   it "evaluate B correctly" $ do
-  --     evaluate "BBB"        `shouldBe` Right (Lamd 4 (App (Var 3) (list2app [(Var 2), (Var 1), (Var 0)])))
-  --     evaluate "S(BBS)(KK)" `shouldBe` Right (Lamd 3 $ list2app [(Var 2), (Var 0), (Var 1)])
+      evaluate "BBB"        `shouldBe` unnest (Lamd 4 $ Nest [Var 3, Nest [Var 2, Var 1, Var 0]])
+      evaluate "S(BBS)(KK)" `shouldBe` unnest (Lamd 3 $ Nest [Var 2, Var 0, Var 1])
     
-  --   it "evaluate C correctly" $ do
-  --     evaluate "C"          `shouldBe` Right (Lamd 3 $ list2app [(Var 2), (Var 0), (Var 1)])
-  --     evaluate "CB(SII)"    `shouldBe` Right (Lamd 2 $ App (Var 1) (App (Var 0) (Var 0)))
-  --     evaluate "CI"         `shouldBe` Right (Lamd 2 $ App (Var 0) (Var 1))
+    it "evaluate C correctly" $ do
+      evaluate "C"          `shouldBe` unnest (Lamd 3 $ Nest [Var 2, Var 0, Var 1])
+      evaluate "CB(SII)"    `shouldBe` unnest (Lamd 2 $ Nest [Var 1, Nest [Var 0, Var 0]])
+      evaluate "CI"         `shouldBe` unnest (Lamd 2 $ Nest [Var 0, Var 1])

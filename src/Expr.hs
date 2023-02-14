@@ -38,6 +38,11 @@ unnest (Nest (a:b:e)) = do
   x <- unnest a
   y <- unnest b
   unnest $ Nest $ (App x y):e
+unnest (App a b)      = do 
+  x <- unnest a
+  y <- unnest b
+  return $ App x y
+unnest (Lamd n e)     = unnest e >>= (return . Lamd n)
 unnest e              = Right e
 
 joinLamd :: Int -> Expr -> Expr

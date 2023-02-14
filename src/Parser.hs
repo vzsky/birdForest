@@ -21,11 +21,14 @@ data ParsedExpr
 makeParser p = parse p ""
 
 knownBird :: [Char] 
-knownBird = ['K', 'S']
+knownBird = ['K', 'S', 'I', 'B', 'C']
 
 char2bird :: Char -> Result
 char2bird 'K' = Right K
 char2bird 'S' = Right S
+char2bird 'I' = unnest $ Nest [S, K, K]
+char2bird 'B' = unnest $ Nest [S, Nest [K, S], K]
+char2bird 'C' = unnest $ Nest [S, Nest [Nest [S, Nest [K, S], K], Nest [S, Nest [K, S], K], S], Nest [K, K]]
 char2bird  c  = Left "unknown bird marked as known"
 
 desugar :: ParsedExpr -> Result

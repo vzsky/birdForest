@@ -15,9 +15,12 @@ As for now, you can call out the following birds
 
 Most of the birds could be found in the forest, although they are unnamed. Some birds might not terminate, for example, the Y-combinator bird `(S(CB(SII))(CB(SII)))`.
 
-The REPL can only parse Birds but not Lambda Expression (at the moment)
+The REPL can parse mentioned birds and lambda expression using the de bruijn index notation.
 
-Ex. `SKK` will be parsed as `(SK)K` and return `I`
+### Examples 
+  - `SKK` will be parsed as `(SK)K` and return `I`
+  - `λ[0]` means `λx.x`
+  - `λλλ[0][1]` means `λxyz.zy`
 
 ----
 
@@ -37,9 +40,7 @@ All library files are in `/src/`, tests are in `/test/` and repl is in `/app/`
 - Parsing detail specified in `Expr.hs`
 - Parsing algorithm in `Parser.hs`
 ### Evaluation
-- splited into desugar, intepret, (re)sugar
-- desugar turns expression into the one with just `S` and `K`
-  - in fact `S`, `K`, `I`, `B`, and `C` would speed up.
+- splited into intepret, (re)sugar
 - intepretation break down each bird into the equivalent lambda expression with de bruijn index
 - interpretation takes care of reductions and result in a non-reducible lambda expression
 - encyclopedia map back the expression to its name 
@@ -49,13 +50,23 @@ All library files are in `/src/`, tests are in `/test/` and repl is in `/app/`
 
 ## Library Specification
 
+`Expr` is a type that represent the syntax of the language. 
+
+`Result` is a type of `Either String Expr` where the string is the error message 
+### Parser 
+1. `parseExpr :: String -> Result` 
+   - parse string into a `Result`
 ### Evaluation
-1. `interp` makes reduction of any Expression containing `S` and `K`
-2. `desugarize` reduces known birds into `S` and `K`
-3. `evaluate` _parse_ the string, then `desugarize`, and do `interp`.
+1. `interp :: Expr -> Result`
+   -  makes reduction of any Expression containing `S` and `K`
+2. `evaluate :: String -> Result`
+   - _parse_ the string, and do `interp`.
 ### Output 
-1. `encyclopedia` yields the prettiest response with bird name and named lambda expression
-2. `prettify` returns the corresponding named lambda expression 
-3. `show` returns the lambda expression in de bruijn index style 
+1. `encyclopedia :: Expr -> String` 
+   - yields the prettiest response with bird name and named lambda expression
+2. `prettify :: Expr -> String` 
+   - returns the corresponding named lambda expression 
+3. `show :: Expr -> String` 
+   - returns the lambda expression in de bruijn index style 
 ## Reference
 [birds list](https://www.angelfire.com/tx4/cus/combinator/birds.html)
