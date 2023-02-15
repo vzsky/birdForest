@@ -9,24 +9,36 @@ import Expr
 import Parser
 import Eval
 
+deLamd :: Int -> Expr -> String
+deLamd c e = "λ" ++ getArgs c e ++ "." ++ getBody c e 
+
+getArgs :: Int -> Expr -> String
+getArgs c (Lamd n e)  = show (Gen c) ++ (getArgs (c+1) $ substitute (Gen c) $ joinLamd (n-1) e)
+getArgs c e           = ""
+
+getBody :: Int -> Expr -> String
+getBody c (Lamd n e)             = getBody (c+1) $ substitute (Gen c) $ joinLamd (n-1) e
+getBody c (App e1@(Lamd n e) e2) = "("++ deLamd c e1 ++")" ++ getBody c e2
+getBody c (App e1 e2@(Lamd n e)) = getBody c e1 ++ "("++ deLamd c e2 ++")"
+getBody c (App e1 e2@(App a b))  = getBody c e1 ++ "("++ getBody c e2 ++")"
+getBody c (App e1 e2)            = (getBody c e1) ++ (getBody c e2)
+getBody c e                      = show e 
+
+maxGen :: Expr -> Int
+maxGen (App a b)  = max (maxGen a) (maxGen b)
+maxGen (Lamd a e) = maxGen e
+maxGen (Gen x)    = x
+maxGen e          = -1
 
 prettify :: Expr -> String
-prettify = del 0 where
-  del  c e                      = "λ" ++ args c e ++ "." ++ body c e 
-  args c (Lamd n e)             = show (Gen c) ++ (args (c+1) $ substitute (Gen c) $ joinLamd (n-1) e)
-  args c e                      = ""
-  body c (Lamd n e)             = body (c+1) $ substitute (Gen c) $ joinLamd (n-1) e
-  body c (App e1@(Lamd n e) e2) = "("++ del c e1 ++")" ++ body c e2
-  body c (App e1 e2@(Lamd n e)) = body c e1 ++ "("++ del c e2 ++")"
-  body c (App e1 e2@(App a b))  = body c e1 ++ "("++ body c e2 ++")"
-  body c (App e1 e2)            = (body c e1) ++ (body c e2)
-  body c e                      = show e 
+prettify e@(Lamd n b) = deLamd  ((maxGen e)+1) e 
+prettify e            = getBody ((maxGen e)+1) e 
 
 enclyclopedia :: Expr -> String
-enclyclopedia e = 
-  if search e == show e then prettify e
-                        else search e ++ " : " ++ prettify e
-search (App e1 e2) = "("++(search e1)++")" ++ "("++(search e2)++")"
+enclyclopedia e | search e == show e   = prettify e
+                | otherwise            = search e ++ " : " ++ prettify e
+
+search (App e1 e2) = "("++search e1++")" ++ "("++search e2++")"
 search e 
     | (Right e) == (evaluate "I")      = "I"
     | (Right e) == (evaluate "S")      = "S"
@@ -44,6 +56,4 @@ search e
     | otherwise                        = show e
 
 evaluate :: String -> Result
-evaluate s = do 
-  p <- parseExpr s 
-  interp p
+evaluate s = parseExpr s >>= interp

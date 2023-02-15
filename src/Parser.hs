@@ -6,6 +6,7 @@ module Parser
 import Text.Parsec 
 import Expr
 import Control.Monad (sequence)
+import Data.Char
 
 data Term 
   = B Char
@@ -41,29 +42,16 @@ desugar (N es) = do
   s <- sequence $ map desugar es
   unnest $ Nest s 
 
-bird :: Parsec String () Term 
-bird = B <$> (foldl1 (<|>) $ map char knownBird)
-
-genr :: Parsec String () Term
-genr = G <$> (read <$> (char '<' *> many digit <* char '>'))
-
-varb :: Parsec String () Term
-varb = V <$> (read <$> (char '[' *> many digit <* char ']'))
-
 term :: Parsec String () Term
-term = bird <|> genr <|> varb
+term =  (B <$> (foldl1 (<|>) $ map char knownBird))
+    <|> (G <$> (flip (-) 97) . ord <$> (foldl1 (<|>) $ map char ['a'..'z'] ))
+    <|> (G <$> (read <$> (char '<' *> many digit <* char '>')))
+    <|> (V <$> (read <$> (char '[' *> many digit <* char ']')))
 
 expr :: Parsec String () ParsedExpr
-expr =  (T <$> term)
-    <|> do 
-      char 'λ'
-      e <- many expr
-      return $ L $ N e 
-    <|> do 
-      char '('
-      e <- many expr
-      char ')'
-      return $ N e 
+expr =  (T       <$> term)
+    <|> ((L . N) <$> (char 'λ' *> many expr))
+    <|> (N       <$> (char '(' *> many expr <* char ')'))
 
 parseExpr :: String -> Result
 parseExpr x = case (makeParser expr) ("(" ++ x ++ ")") of 

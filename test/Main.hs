@@ -38,6 +38,9 @@ main = hspec $ do
       parseExpr "<0>"   `resultTo` Right (Gen 0)
       parseExpr "<88>"  `resultTo` Right (Gen 88)
       parseExpr "<000>" `resultTo` Right (Gen 0)
+      parseExpr "a"     `resultTo` Right (Gen 0)
+      parseExpr "z"     `resultTo` Right (Gen 25)
+      parseExpr "t"     `resultTo` Right (Gen 19)
 
     it "parses Lambda" $ do 
       parseExpr "λ[0]"          `resultTo` unnest (Lamd 1 $ Nest [Var 0])
@@ -51,6 +54,8 @@ main = hspec $ do
       parseExpr "λλK"           `resultTo` unnest (Lamd 2 $ Nest [K])
       parseExpr "λλSKK"         `resultTo` unnest (Lamd 2 $ Nest [S, K, K])
       parseExpr "λλS[0]<0>"     `resultTo` unnest (Lamd 2 $ Nest [S, Var 0, Gen 0])
+      parseExpr "λλabc"         `resultTo` unnest (Lamd 2 $ Nest [Gen 0, Gen 1, Gen 2])
+      parseExpr "λλxyz"         `resultTo` unnest (Lamd 2 $ Nest [Gen 23, Gen 24, Gen 25])
 
     it "desugar I" $ do 
       parseExpr "I"       `resultTo` parseExpr "SKK"
