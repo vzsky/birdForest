@@ -1,5 +1,6 @@
 module Eval
-  ( interp, substitute ) where
+  ( interp
+  , substitute ) where
 
 import Expr
 

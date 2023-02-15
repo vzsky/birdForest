@@ -1,8 +1,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 
 module Parser 
-  ( parseExpr
-  ) where
+  ( parseExpr ) where
 
 import Text.Parsec 
 import Expr
