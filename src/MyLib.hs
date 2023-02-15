@@ -8,37 +8,40 @@ module MyLib
 import Expr
 import Parser
 import Eval
+import Data.List
 
-deLamd :: Int -> Expr -> String
+deLamd :: [Int] -> Expr -> String
 deLamd c e = "λ" ++ getArgs c e ++ "." ++ getBody c e 
 
-getArgs :: Int -> Expr -> String
-getArgs c (Lamd n e)  = show (Gen c) ++ (getArgs (c+1) $ substitute (Gen c) $ joinLamd (n-1) e)
-getArgs c e           = ""
+getArgs :: [Int] -> Expr -> String
+getArgs (c:cs) (Lamd n e)   = show (Gen c) ++ (getArgs cs $ substitute (Gen c) $ joinLamd (n-1) e)
+getArgs c e                 = ""
 
-getBody :: Int -> Expr -> String
-getBody c (Lamd n e)             = getBody (c+1) $ substitute (Gen c) $ joinLamd (n-1) e
+getBody :: [Int] -> Expr -> String
+getBody (c:cs) (Lamd n e)        = getBody cs $ substitute (Gen c) $ joinLamd (n-1) e
 getBody c (App e1@(Lamd n e) e2) = "("++ deLamd c e1 ++")" ++ getBody c e2
 getBody c (App e1 e2@(Lamd n e)) = getBody c e1 ++ "("++ deLamd c e2 ++")"
 getBody c (App e1 e2@(App a b))  = getBody c e1 ++ "("++ getBody c e2 ++")"
 getBody c (App e1 e2)            = (getBody c e1) ++ (getBody c e2)
 getBody c e                      = show e 
 
-maxGen :: Expr -> Int
-maxGen (App a b)  = max (maxGen a) (maxGen b)
-maxGen (Lamd a e) = maxGen e
-maxGen (Gen x)    = x
-maxGen e          = -1
+avaiGen :: Expr -> [Int]
+avaiGen = ([0..] \\) . allGen where 
+  allGen (App a b)  = allGen a ++ allGen b
+  allGen (Lamd a e) = allGen e
+  allGen (Gen x)    = [x]
+  allGen e          = []
 
 prettify :: Expr -> String
-prettify e@(Lamd n b) = deLamd  ((maxGen e)+1) e 
-prettify e            = getBody ((maxGen e)+1) e 
+prettify e@(Lamd n b) = deLamd  (avaiGen e) e 
+prettify e            = getBody (avaiGen e) e 
 
 enclyclopedia :: Expr -> String
-enclyclopedia e | search e == show e   = prettify e
-                | otherwise            = search e ++ " : " ++ prettify e
+enclyclopedia e
+  | search e == show e = prettify e
+  | otherwise          = search e ++ " : " ++ prettify e
 
-search (App e1 e2) = "("++search e1++")" ++ "("++search e2++")"
+search :: Expr -> String
 search e 
     | (Right e) == (evaluate "I")      = "I"
     | (Right e) == (evaluate "S")      = "S"
