@@ -3,11 +3,10 @@ module Main (main) where
 import Test.Hspec
 import MyLib
 import Data.Function (on)
+import Data.Bifunctor
 
-resultTo :: (HasCallStack, Show b, Eq b) => Either a b -> Either a b -> Expectation
-resultTo = shouldBe `on` (\x -> case x of 
-  Left _  -> Nothing
-  Right s -> Just s)
+resultTo :: (Show b, Eq b) => Either a b -> Either a b -> Expectation
+resultTo = shouldBe `on` (first $ const ())
 
 main :: IO ()
 main = hspec $ do
